@@ -23,6 +23,11 @@ app = Flask(__name__)
 import diskcache
 
 from integralhk import data
+from integralhk.exception import GeneratorException
+
+@app.errorhandler(GeneratorException)
+def handle_generator_exception(e):
+    return e.message, 400
 
 @app.route('/api/v1.0/genlc/<string:target>/<string:t0>/<string:dt>', methods=['GET'])
 def genlc(target, t0, dt):

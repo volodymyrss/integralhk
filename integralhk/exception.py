@@ -1,3 +1,21 @@
+def handleall(comment):
+    def dec(f):
+        def nf(*a,**aa):
+            try:
+                return f(*a,**aa)
+            except Exception as e:
+                return comment+" : "+str("exception:"+str(e))
+        return nf
+    return dec
+
+
+@handleall("can not comment on time!")
+def comment_time(timestr):
+    try:
+        return validate_time(timestr)
+    except BadTime as e:
+        return repr(e)
+
 
 class GeneratorException(Exception):
     def __init__(self,arg,times=None):

@@ -1,3 +1,9 @@
+def test_future():
+    import integralhk.data as d
+
+    lc = d.getgenlc("ACS", "30000", "30")
+
+    print(lc[0])
 
 def test_acs():
     import integralhk.data as d

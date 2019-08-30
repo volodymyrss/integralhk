@@ -20,3 +20,7 @@ def test_ephs(client):
     print(r)
     assert r.status_code == 200
     
+def test_future(client):
+    r=client.get(url_for('ephs', t0='3019-06-10T11:27:45'))
+    print(r)
+    assert r.status_code == 400
