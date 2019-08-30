@@ -29,8 +29,16 @@ from integralhk.exception import GeneratorException
 def handle_generator_exception(e):
     return e.message, 400
 
+@app.route('/api/v1.0/ipnlc/<string:t0>/<string:dt>', methods=['GET'])
+def ipnlc(t0, dt):
+
+    d=data.getipn(t0, dt)
+
+    return d[0]
+
 @app.route('/api/v1.0/genlc/<string:target>/<string:t0>/<string:dt>', methods=['GET'])
 def genlc(target, t0, dt):
+
     d=data.getgenlc(target, t0, dt)
 
     return d[0]
