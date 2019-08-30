@@ -26,21 +26,21 @@ from integralhk import data
 
 @app.route('/api/v1.0/genlc/<string:target>/<string:t0>/<string:dt>', methods=['GET'])
 def genlc(target, t0, dt):
-    data.getgenlc(target, t0, dt)
+    d=data.getgenlc(target, t0, dt)
 
-    return "all is ok"
+    return d[0]
 
 @app.route('/api/v1.0/ephs/<string:t0>', methods=['GET'])
 def ephs(t0):
-    data.getephs(t0)
+    d=data.getephs(t0)
 
-    return "all is ok"
+    return d[0]
 
 @app.route('/api/v1.0/att/<string:t0>', methods=['GET'])
 def att(t0):
-    data.getatt(t0)
+    d = data.getatt(t0)
 
-    return "all is ok"
+    return d[0]
 
 @app.route('/', methods=['GET'])
 @app.route('/poke', methods=['GET'])
