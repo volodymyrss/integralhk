@@ -1,17 +1,9 @@
-from distutils.core import setup
+from setuptools import setup
 
 setup(
         name='integralhk',
         version='1.0',
-        py_modules= ['integalhk'],
-        package_data     = {
-            "": [
-                "*.txt",
-                "*.md",
-                "*.rst",
-                "*.py"
-                ]
-            },
+        packages=["integralhk"],
         install_requires=[
             'flask',
             'requests',
