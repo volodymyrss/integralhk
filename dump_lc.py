@@ -55,7 +55,7 @@ def close_all(f):
         r=f(*a,**aa)
         after=get_open_fds()
         diff=[a for a in after if a not in before]
-        print "open before and after",before,after,diff
+        print("open before and after",before,after,diff)
         return r
 
     return nf
@@ -82,8 +82,8 @@ def dump_lc(utc1,utc2,mode=0,target="ACS",rbp=None,dump_lc_path=None):
     env['PFILES']=dump_lc_path
     env['REP_BASE_PROD']=rbp
 
-    print "command:"," ".join(command)
-    print "env:",env['PFILES']
+    print("command:"," ".join(command))
+    print("env:",env['PFILES'])
 
     #otf=tempfile.mkstemp()
     #otfh=open(otf[1])
@@ -93,7 +93,7 @@ def dump_lc(utc1,utc2,mode=0,target="ACS",rbp=None,dump_lc_path=None):
         output=subprocess.check_output(command,env=env)
     except subprocess.CalledProcessError as e:
         exception=e
-        print "dump_lc returns",repr(e)
+        print("dump_lc returns",repr(e))
         output=exception.output
 
     try:
@@ -103,7 +103,7 @@ def dump_lc(utc1,utc2,mode=0,target="ACS",rbp=None,dump_lc_path=None):
         os.remove(tf[1])
         os.close(tf[0])
     except Exception as e:
-        print "could not read temp file?.."
+        print("could not read temp file?..")
         raise
    # p.wait()
 
@@ -112,14 +112,14 @@ def dump_lc(utc1,utc2,mode=0,target="ACS",rbp=None,dump_lc_path=None):
     #otfh.close()
     #os.remove(otf[1])
 
-    print "output:",output
+    print("output:",output)
 
     if re.search("Error_0: unknown target",output):
         raise BadTarget(" "+target)
     
     s=re.search("unable to read.*? skipping",output)
     if s:
-        print "found problems: probably no permission to access"
+        print("found problems: probably no permission to access")
         #raise NoAccess(" probably no permission to access")
     
     if re.search("No ScW files in here",output):
@@ -143,7 +143,7 @@ def dump_lc(utc1,utc2,mode=0,target="ACS",rbp=None,dump_lc_path=None):
 
     errors=re.findall("^Error_. *(.*?)\n",output,re.S and re.M)
     if errors!=[]:
-        print "noticed unhandled errors in the output:",errors
+        print("noticed unhandled errors in the output:",errors)
         raise Exception("\n".join(errors))
 
     if exception is not None:
@@ -151,7 +151,7 @@ def dump_lc(utc1,utc2,mode=0,target="ACS",rbp=None,dump_lc_path=None):
     
     errors=re.findall("^Warn_.*?\n",output,re.S)
     if errors!=[]:
-        print "noticed warnings in the output:",errors
+        print("noticed warnings in the output:",errors)
 
     def sfloat(x):
         try:
@@ -163,6 +163,6 @@ def dump_lc(utc1,utc2,mode=0,target="ACS",rbp=None,dump_lc_path=None):
     if mode==0 and all([sfloat(a.split()[2])==0 for a in result.split("\n") if len(a.split())>=4]):
         raise ZeroData()
 
-    print "leaving dump_lc"
+    print("leaving dump_lc")
 
     return result,output

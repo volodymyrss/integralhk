@@ -1,6 +1,6 @@
 #!/bin/env python
 
-import subprocess,pickle,datetime,re,urllib,tempfile,time
+import subprocess,pickle,datetime,re,urllib.request,urllib.parse,urllib.error,tempfile,time
 import glob,os
 import shutil,glob,os
 from math import *
@@ -15,16 +15,16 @@ class BadTimeFormat(Exception):
 def with_both_rbp(f):
     def nf(*a,**b):
         if 'rbp' in b and b['rbp'] is not None:
-            print "rbp already set to",b['rbp'],", will not iterate over ARC/NRT"
+            print("rbp already set to",b['rbp'],", will not iterate over ARC/NRT")
         else:
             rbp=[spiacs_config.isdc_env['isdc_nrt'],spiacs_config.isdc_env['isdc_arc']]
             #rbp=[spiacs_config.isdc_env['isdc_arc'],spiacs_config.isdc_env['isdc_nrt']]
             b['rbp']=rbp
-        print "with",a,b
+        print("with",a,b)
         try:
             return support.try_all(key='rbp')(f)(*a,**b)
         except Exception as e:
-            print "with_both_rbp failed with",a,b
+            print("with_both_rbp failed with",a,b)
             raise
     return nf
 
@@ -76,7 +76,7 @@ def utc2utc_sec(utc):
     y,m,d=D.split("-")
     date=d+"/"+m+"/"+y[2:]
     
-    H,M,S=map(float,T.split(":"))
+    H,M,S=list(map(float,T.split(":")))
     sec=H*3600+M*60+S
     
     return date,sec
@@ -98,27 +98,27 @@ def utc_sec2ijd(utc):
 
 @with_both_rbp
 def converttime(inpf,inp,outpf,rbp):
-    print bcolors.render("{RED}converttime{/} using {BLUE}"+str(rbp)+"{/}")
+    print(bcolors.render("{RED}converttime{/} using {BLUE}"+str(rbp)+"{/}"))
     env=os.environ.copy()
     env['REP_BASE_PROD']=rbp
     env['PFILES']=env['HOME']+"/pfiles;"+env['ISDC_ENV']+"/pfiles"
 
     inps="%.30lg"%inp if isinstance(inp,float) else str(inp)
     c=["converttime",inpf,inps,outpf,"accflag=10"]
-    print "command:"," ".join(c)
+    print("command:"," ".join(c))
 
     try:
         pr=subprocess.check_output(c,env=env)
     except subprocess.CalledProcessError as e:
         if re.search("DAL3GEN_INVALID_.*?_TIME",e.output):
-            print "failed bad time:",e
+            print("failed bad time:",e)
             raise BadTimeFormat("bad time content: "+repr(inp)+" as "+repr(inpf))
-        print "called process failed, raising:",e
+        print("called process failed, raising:",e)
         raise e
     except Exception as e:
-        print "failed:",e
+        print("failed:",e)
         raise e
-    print pr
+    print(pr)
 
     r=re.search("Output Time\(%s\):(.*)"%outpf,pr)
     outt=r.groups(0)[0].strip()
@@ -151,7 +151,7 @@ def ijd2scw(ijd,rbp=None):
         if len(scwid)!=12:
             raise Exception("conversion IJD to SCWID caused something weird")
     except Exception as e:
-        print "poorly handled exception",e
+        print("poorly handled exception",e)
         scwid="0"*12
         raise
 
@@ -162,16 +162,16 @@ def ijd2utc_sec(ijd):
 
 def x2ijd(x,rbp=None):
     if isinstance(x,float) or isinstance(x,int):
-        print "float must be IJD: IJD found!"
+        print("float must be IJD: IJD found!")
         return x
     
     if not isinstance(x,str):
-        print "should be float or string"
+        print("should be float or string")
         raise BadTimeFormat("can not interpret time (shoud be float or string) "+repr(x))
 
 
     if re.match("\d+(\.\d*)?$",x):
-        print "IJD found!",x
+        print("IJD found!",x)
         try:
             return float(x)
         except:
@@ -179,14 +179,14 @@ def x2ijd(x,rbp=None):
 
 
     if re.match("\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d\.?\d*",x):
-        print "UTC found!"
+        print("UTC found!")
         return utc2ijd(x,rbp=rbp)
     
     if re.match("\d\d\d\d\d\d\d\dT\d\d\d\d\d\d\d{6}",x):
-        print "alternative UTC found!"
+        print("alternative UTC found!")
         return autc2ijd(x,rbp=rbp)
     
-    print "can not interpret time:",x
+    print("can not interpret time:",x)
     raise BadTimeFormat("can not interpret time "+repr(x))
 
 

@@ -1,7 +1,7 @@
 import os,sys
 
 if sys.version_info[0]!=2 or sys.version_info[1]<7:
-    print "need python 2.7!"
+    print("need python 2.7!")
     sys.exit(1)
 
 environment_root=os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -58,5 +58,5 @@ PYTHONPATH=":".join(sys.path)
 
 if __name__=="__main__":
     if len(sys.argv)==2:
-        print eval(sys.argv[1])
+        print(eval(sys.argv[1]))
 
