@@ -1,9 +1,9 @@
 from distutils.core import setup
 
 setup(
-        name='integral-scsystem',
+        name='integralhk',
         version='1.0',
-        py_modules= ['scsystem'],
+        py_modules= ['integalhk'],
         package_data     = {
             "": [
                 "*.txt",
@@ -15,7 +15,6 @@ setup(
         install_requires=[
             'flask',
             'requests',
-            'pylru',
         ],
         license='Creative Commons Attribution-Noncommercial-Share Alike license',
         long_description=open('README.md').read(),

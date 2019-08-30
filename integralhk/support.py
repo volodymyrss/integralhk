@@ -29,7 +29,7 @@ def try_all(key):
                     print("succeded with %s as %s"%(key,str(c))) #,"got",r
                     return r
                 except Exception as re:
-                    view_traceback()
+                    #view_traceback()
 
                 #except GeneratorException as e:
                     e = GeneratorException(re)
