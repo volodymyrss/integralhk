@@ -1,3 +1,8 @@
+from integralhk.exception import GeneratorException
+
+import sys
+import traceback
+
 def view_traceback():
     ex_type, ex, tb = sys.exc_info()
     traceback.print_tb(tb)
@@ -23,11 +28,17 @@ def try_all(key):
                     r=f(*a,**dict(list(b.items())+[[key,c]]))
                     print("succeded with %s as %s"%(key,str(c))) #,"got",r
                     return r
-                except Exception as e:
+                except Exception as re:
+                    view_traceback()
+
+                #except GeneratorException as e:
+                    e = GeneratorException(re)
+
                     print("failed with %s as %s"%(key,str(c)))
                     print("exception:",e)
                     e.message="%s as %s: "%(key,str(c))+e.message
                     exceptions[c]=e
+
             print("failed all over!")
             
             print("exceptions:",list(exceptions.items()))

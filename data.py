@@ -3,6 +3,8 @@ from integralhk import support
 from integralhk import dump_lc
 from integralhk import integral
 
+from integralhk.exception import GeneratorException
+
 import tempfile
 import subprocess
 import os
@@ -10,27 +12,10 @@ import time
 import re
 import copy
 import sys
+
         
 #advice=advise_time(utc1)+"; "+advise_time(utc2)
 
-class GeneratorException(Exception):
-    def __init__(self,arg,times=None):
-        self.message=str(arg)
-        self.times=times
-
-    def merge(self,e):
-        if isinstance(e,self.__class__):
-            self.message+="\n"+e.message
-
-    def __repr__(self):
-        m=self.message
-        if hasattr(self,'times') and self.times is not None:
-            for time in self.times:
-                m+="\n"+comment_time(time)
-        return "GeneratorException('%s')"%m
-    
-    def __str__(self):
-        return repr(self)
 
 class BadTime(GeneratorException):
     def __init__(self,comment):
@@ -58,7 +43,7 @@ def validate_argnum(num,excc,arg):
     def dec(f):
         def nf(*a,**b):
             if len(a)!=num:
-                print("bad arguments:",a)
+                print(("bad arguments:",a))
                 exc=excc(arg)
                 exc.message+="; bad arguments:"+str(a)
                 raise exc
@@ -75,7 +60,7 @@ def getgenlc(*a,**b):
 
     rbp=b['rbp']
 
-    print("getgenlc using "+rbp+" from target ",target)
+    print(("getgenlc using "+rbp+" from target ",target))
     
 
     timestr=timestr.strip()
@@ -92,8 +77,8 @@ def getgenlc(*a,**b):
     utc2=ijd2utc(ijd0+ranges/24./3600,rbp=rbp)
     
 
-    print("requested LC around",timestr,"range",rangestr)
-    print("interpeted as",ijd0,utc0,"range +-",ranges,utc1," - ",utc2)
+    print(("requested LC around",timestr,"range",rangestr))
+    print(("interpeted as",ijd0,utc0,"range +-",ranges,utc1," - ",utc2))
 
     try:
         result,output=dump_lc.dump_lc(utc1,utc2,rbp=rbp,target=target)
@@ -102,7 +87,7 @@ def getgenlc(*a,**b):
         else:
             return result,output  # may be note which rbp is used 
     except dump_lc.DumpLCException as e:
-        print("dump_lc exception",repr(e))
+        print(("dump_lc exception",repr(e)))
         raise GeneratorException("dump lc exceptions:"+repr(e),times=[utc1,utc2])
 
 @validate_argnum(2,GeneratorException,"TM LC needs two arguments")
@@ -124,11 +109,11 @@ def getipn(*a):
     date,refsec=utc2utc_sec(utc0)
     date1,refsec1=utc2utc_sec(utc1)
     dref=ranges
-    print("reference seconds:",refsec)
-    print("start (input reference) seconds:",refsec1)
-    print("range in seconds:",ranges)
+    print(("reference seconds:",refsec))
+    print(("start (input reference) seconds:",refsec1))
+    print(("range in seconds:",ranges))
     sanity=(lambda x:x-int(x))((refsec-refsec1-dref))
-    print("discrepancy of",sanity*1000,"ms")
+    print(("discrepancy of",sanity*1000,"ms"))
     if sanity>1e-4:
         print("input range inconsistend with the shift in the input! (leaps?..)")
         raise  Exception("input range inconsistend with the shift in the input! (leaps?..)")
@@ -163,7 +148,7 @@ def getephs(*a,**b):
         result,output=dump_lc.dump_lc(utc,utc,mode=1,rbp=rbp)
         return result,output
     except dump_lc.DumpLCException as e:
-        print("dump_lc exception:",e)
+        print(("dump_lc exception:",e))
         raise GeneratorException("dump lc exceptions:"+str(e))
 
 @validate_argnum(1,GeneratorException,"ATT needs one argument")
@@ -179,10 +164,10 @@ def getatt(*a,**b):
         result,output=dump_lc.dump_lc(utc,utc,mode=2,rbp=rbp)
         return result,output
     except dump_lc.DumpLCException as e:
-        print("dump_lc exception:",e)
+        print(("dump_lc exception:",e))
         raise GeneratorException("dump lc exceptions:"+str(e))
     except Exception as e:
-        print("unhandled exception in att?",e)
+        print(("unhandled exception in att?",e))
         raise
 
 @validate_argnum(1,GeneratorException,"SCW needs one argument")
@@ -195,7 +180,7 @@ def getscw(*a,**b):
         ijd=x2ijd(timestr,rbp=rbp)
         scw=ijd2scw(ijd,rbp=rbp)
     except subprocess.CalledProcessError as e:
-        print("converttime exception:",e)
+        print(("converttime exception:",e))
         raise GeneratorException("converttime exception:"+str(e))
 
     return scw,"none"
@@ -211,7 +196,7 @@ def handleall(comment):
     return dec
 
 def validate_time(timestr):
-    print("validate time:",timestr)
+    print(("validate time:",timestr))
     ijd=x2ijd(timestr)
 
     ijdfirst=x2ijd(time.strftime("2002-11-01T00:00:00"))
@@ -240,7 +225,7 @@ def generate(*req):
     return get_generator_by_name(req[0])(*req[1:])
 
 def get_generator_by_name(name): 
-    print("generator by name:",name)
+    print(("generator by name:",name))
     
     if name=="tmlc":
         return tmlc

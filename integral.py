@@ -4,10 +4,12 @@ import subprocess,pickle,datetime,re,urllib.request,urllib.parse,urllib.error,te
 import glob,os
 import shutil,glob,os
 from math import *
-import bcolors
-import support
 
-import spiacs_config
+import bcolors
+
+from integralhk import support
+from integralhk import spiacs_config
+from integralhk.exception import GeneratorException
 
 class BadTimeFormat(Exception):
     pass
@@ -15,16 +17,16 @@ class BadTimeFormat(Exception):
 def with_both_rbp(f):
     def nf(*a,**b):
         if 'rbp' in b and b['rbp'] is not None:
-            print("rbp already set to",b['rbp'],", will not iterate over ARC/NRT")
+            print(("rbp already set to",b['rbp'],", will not iterate over ARC/NRT"))
         else:
             rbp=[spiacs_config.isdc_env['isdc_nrt'],spiacs_config.isdc_env['isdc_arc']]
             #rbp=[spiacs_config.isdc_env['isdc_arc'],spiacs_config.isdc_env['isdc_nrt']]
             b['rbp']=rbp
-        print("with",a,b)
+        print(("with",a,b))
         try:
             return support.try_all(key='rbp')(f)(*a,**b)
         except Exception as e:
-            print("with_both_rbp failed with",a,b)
+            print(("with_both_rbp failed with",a,b))
             raise
     return nf
 
@@ -35,22 +37,22 @@ rev_days=2.990997
 rev_T0=1016.4021300000001
 
 def revol(tstart):
-        t=(tstart-rev_T0)/rev_days
-        i=int(t)
-        return i
+    t=(tstart-rev_T0)/rev_days
+    i=int(t)
+    return i
 
 rev1700_start=6034.849157222222
 rev1600_start=5502.690279907407
 
 def getphase(tstart):
-        if tstart<100: return 0.5
-        if tstart<5500:
-            t=(tstart-rev_T0)%rev_days
-            t/=rev_days
-            return t
-        rev_days_late=((rev1700_start-rev1600_start)/100.)
-        rev=int((tstart-rev1600_start)/rev_days_late)
-        return (tstart-rev1600_start-rev*rev_days_late)/rev_days_late
+    if tstart<100: return 0.5
+    if tstart<5500:
+        t=(tstart-rev_T0)%rev_days
+        t/=rev_days
+        return t
+    rev_days_late=((rev1700_start-rev1600_start)/100.)
+    rev=int((tstart-rev1600_start)/rev_days_late)
+    return (tstart-rev1600_start-rev*rev_days_late)/rev_days_late
 
 
 # timing
@@ -98,25 +100,25 @@ def utc_sec2ijd(utc):
 
 @with_both_rbp
 def converttime(inpf,inp,outpf,rbp):
-    print(bcolors.render("{RED}converttime{/} using {BLUE}"+str(rbp)+"{/}"))
+    print((bcolors.render("{RED}converttime{/} using {BLUE}"+str(rbp)+"{/}")))
     env=os.environ.copy()
     env['REP_BASE_PROD']=rbp
     env['PFILES']=env['HOME']+"/pfiles;"+env['ISDC_ENV']+"/pfiles"
 
     inps="%.30lg"%inp if isinstance(inp,float) else str(inp)
     c=["converttime",inpf,inps,outpf,"accflag=10"]
-    print("command:"," ".join(c))
+    print(("command:"," ".join(c)))
 
     try:
-        pr=subprocess.check_output(c,env=env)
+        pr=subprocess.check_output(c,env=env).decode()
     except subprocess.CalledProcessError as e:
-        if re.search("DAL3GEN_INVALID_.*?_TIME",e.output):
-            print("failed bad time:",e)
+        if re.search("DAL3GEN_INVALID_.*?_TIME",e.output.decode()):
+            print(("failed bad time:",e))
             raise BadTimeFormat("bad time content: "+repr(inp)+" as "+repr(inpf))
-        print("called process failed, raising:",e)
+        print(("called process failed, raising:",e))
         raise e
     except Exception as e:
-        print("failed:",e)
+        print(("failed:",e))
         raise e
     print(pr)
 
@@ -151,7 +153,7 @@ def ijd2scw(ijd,rbp=None):
         if len(scwid)!=12:
             raise Exception("conversion IJD to SCWID caused something weird")
     except Exception as e:
-        print("poorly handled exception",e)
+        print(("poorly handled exception",e))
         scwid="0"*12
         raise
 
@@ -171,7 +173,7 @@ def x2ijd(x,rbp=None):
 
 
     if re.match("\d+(\.\d*)?$",x):
-        print("IJD found!",x)
+        print(("IJD found!",x))
         try:
             return float(x)
         except:
@@ -186,7 +188,7 @@ def x2ijd(x,rbp=None):
         print("alternative UTC found!")
         return autc2ijd(x,rbp=rbp)
     
-    print("can not interpret time:",x)
+    print(("can not interpret time:",x))
     raise BadTimeFormat("can not interpret time "+repr(x))
 
 

@@ -1,5 +1,5 @@
 try:
-    import spiacs_config
+    from integralhk import spiacs_config
 except ImportError:
     print("no spiacs-config: standalone")
 
@@ -55,7 +55,7 @@ def close_all(f):
         r=f(*a,**aa)
         after=get_open_fds()
         diff=[a for a in after if a not in before]
-        print("open before and after",before,after,diff)
+        print(("open before and after",before,after,diff))
         return r
 
     return nf
@@ -79,22 +79,26 @@ def dump_lc(utc1,utc2,mode=0,target="ACS",rbp=None,dump_lc_path=None):
             "mode=%i"%mode]
 
     env=copy.deepcopy(os.environ)
-    env['PFILES']=dump_lc_path
+
+    syspfiles = env['PFILES'].split(";", 1)[1]
+    usrpfiles = tempfile.mkdtemp(suffix="d-acs")
+
+    env['PFILES']= usrpfiles + ";" + syspfiles
     env['REP_BASE_PROD']=rbp
 
-    print("command:"," ".join(command))
-    print("env:",env['PFILES'])
+    print(("command:"," ".join(command)))
+    print(("env:",env['PFILES']))
 
     #otf=tempfile.mkstemp()
     #otfh=open(otf[1])
 
     exception=None
     try:
-        output=subprocess.check_output(command,env=env)
+        output=subprocess.check_output(command,env=env).decode()
     except subprocess.CalledProcessError as e:
         exception=e
-        print("dump_lc returns",repr(e))
-        output=exception.output
+        print(("dump_lc returns",repr(e)))
+        output=exception.output.decode()
 
     try:
         off=open(tf[1])
@@ -112,7 +116,7 @@ def dump_lc(utc1,utc2,mode=0,target="ACS",rbp=None,dump_lc_path=None):
     #otfh.close()
     #os.remove(otf[1])
 
-    print("output:",output)
+    print(("output:",output))
 
     if re.search("Error_0: unknown target",output):
         raise BadTarget(" "+target)
@@ -143,7 +147,7 @@ def dump_lc(utc1,utc2,mode=0,target="ACS",rbp=None,dump_lc_path=None):
 
     errors=re.findall("^Error_. *(.*?)\n",output,re.S and re.M)
     if errors!=[]:
-        print("noticed unhandled errors in the output:",errors)
+        print(("noticed unhandled errors in the output:",errors))
         raise Exception("\n".join(errors))
 
     if exception is not None:
@@ -151,7 +155,7 @@ def dump_lc(utc1,utc2,mode=0,target="ACS",rbp=None,dump_lc_path=None):
     
     errors=re.findall("^Warn_.*?\n",output,re.S)
     if errors!=[]:
-        print("noticed warnings in the output:",errors)
+        print(("noticed warnings in the output:",errors))
 
     def sfloat(x):
         try:
