@@ -33,7 +33,7 @@ def test_future(client):
 
 
 def test_timerange(client):
-    r=client.get(url_for('timerange', t1='2019-06-10T11:27:45', t2='2019-06-10T11:28:45'))
+    r=client.get(url_for('timerange', t1='2019-06-10T11:27:45', t2='2019-06-10T12:28:45'))
     print(r.json["attitude"].keys())
     print(r.json["attitude"]["RA_SCX"])
 

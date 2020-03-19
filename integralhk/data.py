@@ -290,6 +290,8 @@ def get_timerange(t1, t2, strict=True, ra_dec=None, only_columns=None):
 
                 df[col] = np.array(a[col]).byteswap().newbyteorder()
 
+        df['DURATION_DAYS'] = df['DURATION'] / 24. / 3600.
+
         att_dfs.append(df)
         
         o = table.Table(open_one_of([
@@ -312,7 +314,7 @@ def get_timerange(t1, t2, strict=True, ra_dec=None, only_columns=None):
                     o_df['ZPOS'] = np.array(o[col][:,2]).byteswap().newbyteorder()
 
         o_df["TIME"] = o_df["DAYBEG"]
-        o_df["DURATION"] = o_df["DAYEND"] - o_df["DAYBEG"]
+        o_df["DURATION_DAYS"] = o_df["DAYEND"] - o_df["DAYBEG"]
 
         print(o_df)
 
@@ -324,20 +326,20 @@ def get_timerange(t1, t2, strict=True, ra_dec=None, only_columns=None):
 
 
     if strict:
-        def pick(df):
+        def pick(l, df):
             t = df["TIME"]
-            dt = df["DURATION"] / 3600. / 24.
+            dt = df["DURATION_DAYS"] 
 
             m = t + dt >= t1_ijd
             m &= t - dt <= t2_ijd
             df = df[m]
 
-            print("attitude selection mask", sum(m),"/",len(m), "total range", np.array(t)[0], np.array(t)[-1], "requested", t1_ijd, t2_ijd)
+            print(l+" selection mask", sum(m),"/",len(m), "total range", np.array(t)[0], np.array(t)[-1], "requested", t1_ijd, t2_ijd, "sum time fraction:", sum(dt)/(np.array(t)[-1]-np.array(t)[0]))
             
             return df
 
-        att_df = pick(att_df)
-        orb_df = pick(orb_df)
+        att_df = pick("attitude", att_df)
+        orb_df = pick("orbit", orb_df)
 
     return dict(
                 attitude=att_df.to_dict('list'),
