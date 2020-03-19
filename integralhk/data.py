@@ -326,7 +326,7 @@ def get_timerange(t1, t2, strict=True, ra_dec=None, only_columns=None):
     if strict:
         def pick(df):
             t = df["TIME"]
-            dt = df["DURATION"]
+            dt = df["DURATION"] / 3600. / 24.
 
             m = t + dt >= t1_ijd
             m &= t - dt <= t2_ijd
