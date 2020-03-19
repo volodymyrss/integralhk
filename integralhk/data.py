@@ -263,7 +263,7 @@ def get_timerange(t1, t2, strict=True, ra_dec=None):
     if t2_ijd-t1_ijd>3.:
         return make_response("requested %.5lg days, allowed maximum 3."%(t2_ijd-t1_ijd)), 400
 
-    rbp_cons = os.environ.get("REP_BASE_PROD_CONS", "/isdc/arc/rev_3")
+    rbp_cons = os.environ.get("REP_BASE_PROD_ARC", "/isdc/arc/rev_3")
     print("REP_BASE_PROD cons:", rbp_cons)
 
     att_dfs = []
