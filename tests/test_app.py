@@ -33,12 +33,33 @@ def test_future(client):
 
 
 def test_timerange(client):
-    r=client.get(url_for('timerange', t1='2019-06-10T11:27:45', t2='2019-06-10T11:37:45'))
+    r=client.get(url_for('timerange', t1='2019-06-10T11:27:45', t2='2019-06-10T11:28:45'))
     print(r.json["attitude"].keys())
     print(r.json["attitude"]["RA_SCX"])
 
 
     print(r.json["orbit"]["XPOS"])
     print(r.json["orbit"]["RDIST"])
+
+
+    for f in 'orbit', 'attitude':
+        for k,v in r.json[f].items():
+            print(k,":", v[:10])
+
+    assert r.status_code == 200
+
+def test_timerange_small(client):
+    r=client.get(url_for('timerange', t1='2019-06-10T11:27:45', t2='2019-06-10T11:28:45'), query_string={'only-columns': 'XPOS,RA_SCX,RDIST'})
+    print(r.json["attitude"].keys())
+    print(r.json["attitude"]["RA_SCX"])
+
+
+    print(r.json["orbit"]["XPOS"])
+    print(r.json["orbit"]["RDIST"])
+
+
+    for f in 'orbit', 'attitude':
+        for k,v in r.json[f].items():
+            print(k,":", v[:10])
 
     assert r.status_code == 200

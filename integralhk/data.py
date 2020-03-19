@@ -253,7 +253,10 @@ def open_one_of(options):
 
     return f
 
-def get_timerange(t1, t2, strict=True, ra_dec=None):
+def get_timerange(t1, t2, strict=True, ra_dec=None, only_columns=None):
+    if only_columns is not None:
+        only_columns += ["TIME", "DAYBEG", "DAYEND", "XYZPOS", "DURATION"]
+
     t1_d = converttime("ANY", t1, "ANY")
     t2_d = converttime("ANY", t2, "ANY")
 
@@ -272,9 +275,22 @@ def get_timerange(t1, t2, strict=True, ra_dec=None):
     for revnum in range(int(t1_d['REVNUM']), int(t2_d['REVNUM'])+1):
         print("revnum")
 
-        att_dfs.append(pd.DataFrame(np.array(open_one_of([
+        
+        df =  pd.DataFrame()
+        a = table.Table(open_one_of([
                     rbp_cons + "/aux/adp/%.4i.001/attitude_historic.fits.gz"%revnum,
-                ])[1].data).byteswap().newbyteorder()))
+                ])[1].data)
+
+        for col in a.columns:
+            if only_columns is None or col in only_columns:
+                print(col, a[col].dtype, a[col].shape)
+            
+                if 'U' in str(a[col].dtype):
+                    a[col] = a[col].astype(str)
+
+                df[col] = np.array(a[col]).byteswap().newbyteorder()
+
+        att_dfs.append(df)
         
         o = table.Table(open_one_of([
                     rbp_cons + "/aux/adp/%.4i.001/orbit_historic.fits.gz"%revnum,
@@ -285,14 +301,15 @@ def get_timerange(t1, t2, strict=True, ra_dec=None):
         print(o)
 
         for col in o.columns:
-            print(col, o[col].dtype, o[col].shape)
+            if only_columns is None or col in only_columns:
+                print(col, o[col].dtype, o[col].shape)
 
-            if len(o[col].shape) == 1:
-                o_df[col] = np.array(o[col]).byteswap().newbyteorder()
-            elif col == 'XYZPOS':
-                o_df['XPOS'] = np.array(o[col][:,0]).byteswap().newbyteorder()
-                o_df['YPOS'] = np.array(o[col][:,1]).byteswap().newbyteorder()
-                o_df['ZPOS'] = np.array(o[col][:,2]).byteswap().newbyteorder()
+                if len(o[col].shape) == 1:
+                    o_df[col] = np.array(o[col]).byteswap().newbyteorder()
+                elif col == 'XYZPOS':
+                    o_df['XPOS'] = np.array(o[col][:,0]).byteswap().newbyteorder()
+                    o_df['YPOS'] = np.array(o[col][:,1]).byteswap().newbyteorder()
+                    o_df['ZPOS'] = np.array(o[col][:,2]).byteswap().newbyteorder()
 
         o_df["TIME"] = o_df["DAYBEG"]
         o_df["DURATION"] = o_df["DAYEND"] - o_df["DAYBEG"]

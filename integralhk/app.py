@@ -59,8 +59,11 @@ def att(t0):
 
 @app.route('/api/v1.0/sc/<string:t1>/<string:t2>', methods=['GET'])
 def timerange(t1, t2):
-    j = data.get_timerange(t1, t2)
-    print("would return", j)
+    only_columns = request.args.get('only-columns', None)
+    if only_columns is not None:
+        only_columns = only_columns.split(",")
+
+    j = data.get_timerange(t1, t2, only_columns=only_columns)
     return jsonify(j)
 
 
