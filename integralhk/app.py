@@ -59,7 +59,9 @@ def att(t0):
 
 @app.route('/api/v1.0/sc/<string:t1>/<string:t2>', methods=['GET'])
 def timerange(t1, t2):
-    return jsonify(data.get_timerange(t1, t2))
+    j = data.get_timerange(t1, t2)
+    print("would return", j)
+    return jsonify(j)
 
 
 
