@@ -30,3 +30,15 @@ def test_future(client):
     r=client.get(url_for('ephs', t0='3019-06-10T11:27:45'))
     print(r)
     assert r.status_code == 400
+
+
+def test_timerange(client):
+    r=client.get(url_for('timerange', t1='2019-06-10T11:27:45', t2='2019-06-10T11:37:45'))
+    print(r.json["attitude"].keys())
+    print(r.json["attitude"]["RA_SCX"])
+
+
+    print(r.json["orbit"]["XPOS"])
+    print(r.json["orbit"]["RDIST"])
+
+    assert r.status_code == 200

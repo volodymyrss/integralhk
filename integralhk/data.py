@@ -13,6 +13,13 @@ import re
 import copy
 import sys
 
+import pandas as pd
+import numpy as np
+
+from integralclient import converttime
+
+import astropy.table as table
+import astropy.io.fits as fits
         
 #advice=advise_time(utc1)+"; "+advise_time(utc2)
 
@@ -89,16 +96,6 @@ def getgenlc(*a,**b):
     except dump_lc.DumpLCException as e:
         print(("dump_lc exception",repr(e)))
         raise GeneratorException("dump lc exceptions:"+repr(e),times=[utc1,utc2])
-
-@validate_argnum(2,GeneratorException,"TM LC needs two arguments")
-def gettmlc(*a):
-    timestr,rangestr=a
-        
-    import os
-    os.system("sh /home/isdc/savchenk/followup/software/acsdump.x/ibas_acs_offline.sh "+timestr)
-    result=open("lightcurve.lc").read()
-
-    return result
 
 @validate_argnum(2,GeneratorException,"IPN LC needs two arguments")
 def getipn(*a):
@@ -231,4 +228,101 @@ def get_generator_by_name(name):
         return getscw
 
     raise GeneratorException("unknown generator: "+name)
+
+
+class NoData(Exception):
+    pass
+
+def open_one_of(options):
+    f = None
+
+    tried=[]
+
+    for fn in options:
+        print("trying", fn)
+
+        try:
+            f = fits.open(fn)
+            print("... managed!")
+        except Exception as e:
+            print("... did not manage:", repr(e))
+            tried.append(dict(fn=fn))
+
+    if f is None:
+        raise NoData("tried: "+repr(tried))
+
+    return f
+
+def get_timerange(t1, t2, strict=True, ra_dec=None):
+    t1_d = converttime("ANY", t1, "ANY")
+    t2_d = converttime("ANY", t2, "ANY")
+
+    t1_ijd = float(t1_d['IJD'])
+    t2_ijd = float(t2_d['IJD'])
+
+    if t2_ijd-t1_ijd>3.:
+        return make_response("requested %.5lg days, allowed maximum 3."%(t2_ijd-t1_ijd)), 400
+
+    rbp_cons = os.environ.get("REP_BASE_PROD", "/isdc/arc/rev_3")
+
+    att_dfs = []
+    orb_dfs = []
+
+    for revnum in range(int(t1_d['REVNUM']), int(t2_d['REVNUM'])+1):
+        print("revnum")
+
+        att_dfs.append(pd.DataFrame(np.array(open_one_of([
+                    rbp_cons + "/aux/adp/%.4i.001/attitude_historic.fits.gz"%revnum,
+                ])[1].data).byteswap().newbyteorder()))
+        
+        o = table.Table(open_one_of([
+                    rbp_cons + "/aux/adp/%.4i.001/orbit_historic.fits.gz"%revnum,
+                ])[1].data)
+
+        o_df = pd.DataFrame()
+
+        print(o)
+
+        for col in o.columns:
+            print(col, o[col].dtype, o[col].shape)
+
+            if len(o[col].shape) == 1:
+                o_df[col] = np.array(o[col]).byteswap().newbyteorder()
+            elif col == 'XYZPOS':
+                o_df['XPOS'] = np.array(o[col][:,0]).byteswap().newbyteorder()
+                o_df['YPOS'] = np.array(o[col][:,1]).byteswap().newbyteorder()
+                o_df['ZPOS'] = np.array(o[col][:,2]).byteswap().newbyteorder()
+
+        o_df["TIME"] = o_df["DAYBEG"]
+        o_df["DURATION"] = o_df["DAYEND"] - o_df["DAYBEG"]
+
+        print(o_df)
+
+        orb_dfs.append(o_df)
+
+
+    att_df = pd.concat(att_dfs)
+    orb_df = pd.concat(orb_dfs)
+
+
+    if strict:
+        def pick(df):
+            t = df["TIME"]
+            dt = df["DURATION"]
+
+            m = t + dt >= t1_ijd
+            m &= t - dt <= t2_ijd
+            df = df[m]
+
+            print("attitude selection mask", sum(m),"/",len(m), "total range", np.array(t)[0], np.array(t)[-1], "requested", t1_ijd, t2_ijd)
+            
+            return df
+
+        att_df = pick(att_df)
+        orb_df = pick(orb_df)
+
+    return dict(
+                attitude=att_df.to_dict('list'),
+                orbit=orb_df.to_dict('list'),
+            )
 

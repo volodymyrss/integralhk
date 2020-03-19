@@ -55,6 +55,14 @@ def att(t0):
 
     return d[0]
 
+
+
+@app.route('/api/v1.0/sc/<string:t1>/<string:t2>', methods=['GET'])
+def timerange(t1, t2):
+    return jsonify(data.get_timerange(t1, t2))
+
+
+
 @app.route('/', methods=['GET'])
 @app.route('/poke', methods=['GET'])
 def poke():
