@@ -63,7 +63,9 @@ def timerange(t1, t2):
     if only_columns is not None:
         only_columns = only_columns.split(",")
 
-    j = data.get_timerange(t1, t2, only_columns=only_columns)
+    source = request.args.get('source', 'cons')
+
+    j = data.get_timerange(t1, t2, only_columns=only_columns, source=source)
     return jsonify(j)
 
 

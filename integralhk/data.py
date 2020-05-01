@@ -253,7 +253,7 @@ def open_one_of(options):
 
     return f
 
-def get_timerange(t1, t2, strict=True, ra_dec=None, only_columns=None):
+def get_timerange(t1, t2, strict=True, ra_dec=None, only_columns=None, source="cons"):
     if only_columns is not None:
         only_columns += ["TIME", "DAYBEG", "DAYEND", "XYZPOS", "DURATION"]
 
@@ -266,8 +266,12 @@ def get_timerange(t1, t2, strict=True, ra_dec=None, only_columns=None):
     if t2_ijd-t1_ijd>3.:
         return make_response("requested %.5lg days, allowed maximum 3."%(t2_ijd-t1_ijd)), 400
 
-    rbp_cons = os.environ.get("REP_BASE_PROD_ARC", "/isdc/arc/rev_3")
-    print("REP_BASE_PROD cons:", rbp_cons)
+    if source == "cons":
+        rbp = os.environ.get("REP_BASE_PROD_ARC", "/isdc/arc/rev_3")
+        print("REP_BASE_PROD:", rbp)
+    else:
+        rbp = os.environ.get("REP_BASE_PROD_NRT", "/isdc/pvphase/ops/nrt")
+        print("REP_BASE_PROD:", rbp)
 
     att_dfs = []
     orb_dfs = []
@@ -277,9 +281,15 @@ def get_timerange(t1, t2, strict=True, ra_dec=None, only_columns=None):
 
         
         df =  pd.DataFrame()
-        a = table.Table(open_one_of([
-                    rbp_cons + "/aux/adp/%.4i.001/attitude_historic.fits.gz"%revnum,
-                ])[1].data)
+
+        try:
+            a = table.Table(open_one_of([
+                        rbp + "/aux/adp/%.4i.001/attitude_historic.fits.gz"%revnum,
+                    ])[1].data)
+        except:
+            a = table.Table(open_one_of([
+                        rbp + "/aux/adp/%.4i.000/attitude_snapshot.fits"%revnum,
+                    ])[1].data)
 
         for col in a.columns:
             if only_columns is None or col in only_columns:
@@ -294,9 +304,15 @@ def get_timerange(t1, t2, strict=True, ra_dec=None, only_columns=None):
 
         att_dfs.append(df)
         
-        o = table.Table(open_one_of([
-                    rbp_cons + "/aux/adp/%.4i.001/orbit_historic.fits.gz"%revnum,
-                ])[1].data)
+        try:
+            o = table.Table(open_one_of([
+                        rbp + "/aux/adp/%.4i.001/orbit_historic.fits.gz"%revnum,
+                    ])[1].data)
+        except:
+            o = table.Table(open_one_of([
+                        rbp + "/aux/adp/%.4i.000/orbit_predicted.fits"%revnum,
+                    ])[1].data)
+
 
         o_df = pd.DataFrame()
 
