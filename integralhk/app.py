@@ -82,12 +82,12 @@ def healthcheck():
 
     t = time.time()
     r['nrev_cons'] = len(glob.glob(os.path.join(
-        os.environ.get("REP_BASE_PROD_CONS"), "scw/*")))
+        os.environ.get("REP_BASE_PROD_ARC"), "scw/*")))
     r['tspent_cons'] = time.time() - t
 
     t = time.time()
     r['nrev_idx_cons'] = len(glob.glob(os.path.join(
-        os.environ.get("REP_BASE_PROD_CONS"), "idx/scw/*")))
+        os.environ.get("REP_BASE_PROD_ARC"), "idx/scw/*")))
     r['tspent_idx_cons'] = time.time() - t
 
     t = time.time()
