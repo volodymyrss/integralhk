@@ -68,6 +68,9 @@ def dump_lc(utc1,utc2,mode=0,target="ACS",rbp=None,dump_lc_path=None):
     else:
         dump_lc_binary=dump_lc_path+"/dump_lc"
 
+        if not os.path.exists(dump_lc_binary):
+            dump_lc_binary = dump_lc_path + "/dump_ihklc"
+
 
     tf=tempfile.mkstemp(suffix="acs")
     command=[dump_lc_binary,
