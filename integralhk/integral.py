@@ -5,7 +5,7 @@ import glob,os
 import shutil,glob,os
 from math import *
 
-import bcolors
+import pscolors as bcolors
 
 from integralhk import support
 from integralhk import spiacs_config
