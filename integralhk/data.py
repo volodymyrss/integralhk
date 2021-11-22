@@ -68,6 +68,9 @@ def getgenlc(*a,**b):
     rbp=b['rbp']
 
     print(("getgenlc using "+rbp+" from target ",target))
+
+    if target.startswith('SPTI'):
+        raise GeneratorException("SPTI is private")
     
 
     timestr=timestr.strip()
