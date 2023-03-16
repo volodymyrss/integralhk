@@ -33,11 +33,14 @@ def get_realtime_data(ijd, window):
 
     lcs = {}
 
-    for rt_fn in reversed(sorted([
-                    l for l in glob.glob(realtime_dump_root+"/lcdump-revol-*.csv") 
-                    if float(re.search(r"lcdump-revol-(\d{4}).*.csv",l).groups()[0])<=current_rev+1])):
-
+    for rt_fn in reversed(sorted(glob.glob(realtime_dump_root+"/lcdump-revol-*.csv"))): 
         logger.info("trying rt_fn=%s", rt_fn)
+        filerev = int(re.search(r"lcdump-revol-(\d{4}).*.csv",l).groups()[0])
+        logger.info("filerev=%s", filerev)
+
+        if filerev > current_rev + 1:
+            logger.info("this is in the future, skipping rt_fn=%s", rt_fn)
+            continue        
 
         rt_lc = np.genfromtxt(rt_fn)
 
