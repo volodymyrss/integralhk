@@ -4,6 +4,7 @@ import time
 import logging
 
 import numpy as np
+import pandas as pd
 from astropy.time import Time
 
 from . import spiacs_config, integral
@@ -41,15 +42,12 @@ def get_realtime_data(ijd, window):
             logger.info("this is in the future, skipping rt_fn=%s", rt_fn)
             continue        
 
-        rt_lc = np.genfromtxt(rt_fn)
+        lc = pd.read_csv(rt_fn, delim_whitespace=True, usecols=[2, 3], names=["counts", "ijd"])
 
-        lc = rt_lc[:,(3,0,2,0)]
-        lc[:,1] = 0.05
-        
-        first_data = lc[:,0][0]
-        last_data = lc[:,0][-1]
+        first_data = lc['ijd'].min()
+        last_data = lc['ijd'].max()
 
-        logger.info("loaded %s entries %s - %s", lc.shape, first_data, last_data)
+        logger.info("loaded %s entries %s - %s", len(lc), first_data, last_data)
 
         data_ahead_of_request_center_seconds = (last_data-t0_ijd)*24*3600
         data_ahead_of_request_end_seconds = data_ahead_of_request_center_seconds - window
@@ -70,12 +68,11 @@ def get_realtime_data(ijd, window):
             
         if data_ahead_of_request_end_seconds > window:
             logger.info("this margin is sufficient")
+            
+            m = lc.ijd > t0_ijd - window/24/3600
+            m &= lc.ijd < t0_ijd + window/24/3600
 
-            t = lc[:,0]
-            m = t > t0_ijd - window/24/3600
-            m &= t < t0_ijd + window/24/3600
-
-            return lc[m, :], ""
+            return lc[m], ""
         else:
             logger.info("this margin is NOT sufficient")
 
