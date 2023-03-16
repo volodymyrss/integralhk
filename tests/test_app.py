@@ -17,12 +17,28 @@ def test_genlc(client):
     print(r)
     assert r.status_code == 200
     
-def test_rtlc(client):
+@pytest.mark.parametrize('json', [True, False])
+@pytest.mark.parametrize('prophecy', [True, False])
+def test_rtlc(client, json, prophecy):
     t0 = Time(Time.now().unix - 100, format='unix')
-    r = client.get(url_for('rtlc', t0=t0.isot, dt="10"))
+
+    args = []
+
+    if json:
+        args.append('json')
+
+    if prophecy:
+        args.append('prophecy')
+
+    extra_url = ""
+    if args != []:
+        extra_url = "?" + "&".join(args)
+
+    r = client.get(url_for('rtlc', t0=t0.isot, dt="10") + extra_url)
     print(r.data[:1000])
     print(r)
     assert r.status_code == 200
+
 
 
 def test_rtlc_future(client):

@@ -1,7 +1,7 @@
 #!flask/bin/python
 from flask import Flask, url_for, jsonify, send_file, request
 
-import requests
+import logging
 
 import os
 import sys
@@ -20,9 +20,11 @@ pi=np.pi
 
 app = Flask(__name__)
 
+logger = logging.getLogger(__name__)
+
 import diskcache
 
-from integralhk import data
+from integralhk import data, prophet
 from integralhk.exception import GeneratorException
 
 @app.errorhandler(GeneratorException)
@@ -44,9 +46,22 @@ def genlc(target, t0, dt):
 
 @app.route('/api/v1.0/rtlc/<string:t0>/<string:dt>', methods=['GET'])
 def rtlc(t0, dt):
-    d = data.getrealtime(t0, dt)
+    return_json = 'json' in request.args
+    logger.info('requested rtlc with t0=%s dt=%s return_json=%s', t0, dt, return_json)
+
+    if return_json:        
+        d = data.getrealtime(t0, dt, json=True)[0].to_json()
+
+        if 'prophecy' in request.args:
+            logger.info('requested prophecy')
+            d = {
+                'lc': d,
+                'prophecy': prophet.predict(time=t0)
+            }
+    else:
+        d = data.getrealtime(t0, dt)[0]
     
-    return d[0]
+    return d
 
 
 @app.route('/api/v1.0/ephs/<string:t0>', methods=['GET'])

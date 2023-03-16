@@ -200,10 +200,14 @@ def getrealtime(*a,**b):
     r, output = realtime.get_realtime_data(ijd, window_s)
     logger.info("get_realtime_data returns %s", r.shape)
 
-    s = StringIO()
-    np.savetxt(s, r)
-    
-    return s.getvalue(), output
+    if b.get('json', False):        
+        return pd.DataFrame(r), output
+    else:
+        s = StringIO()
+        np.savetxt(s, r)
+        
+        return s.getvalue(), output
+        
 
 
 
