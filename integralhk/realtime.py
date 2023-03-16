@@ -35,7 +35,7 @@ def get_realtime_data(ijd, window):
 
     for rt_fn in reversed(sorted(glob.glob(realtime_dump_root+"/lcdump-revol-*.csv"))): 
         logger.info("trying rt_fn=%s", rt_fn)
-        filerev = int(re.search(r"lcdump-revol-(\d{4}).*.csv",l).groups()[0])
+        filerev = int(re.search(r"lcdump-revol-(\d{4}).*.csv", rt_fn).groups()[0])
         logger.info("filerev=%s", filerev)
 
         if filerev > current_rev + 1:
