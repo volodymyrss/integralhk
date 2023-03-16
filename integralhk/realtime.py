@@ -31,8 +31,6 @@ def get_realtime_data(ijd, window):
 
     logger.info("now_ijd=%s", now_ijd)
 
-    lcs = {}
-
     for rt_fn in reversed(sorted(glob.glob(realtime_dump_root+"/lcdump-revol-*.csv"))): 
         logger.info("trying rt_fn=%s", rt_fn)
         filerev = int(re.search(r"lcdump-revol-(\d{4}).*.csv", rt_fn).groups()[0])
@@ -43,12 +41,15 @@ def get_realtime_data(ijd, window):
             continue        
 
         rt_lc = np.genfromtxt(rt_fn)
+        logger.info("filerev=%s", filerev)
 
-        lcs['ACS']=rt_lc[:,(3,0,2,0)]
-        lcs['ACS'][:,1] = 0.05
+        lc = rt_lc[:,(3,0,2,0)]
+        lc[:,1] = 0.05
+        
+        first_data = lc[:,0][0]
+        last_data = lc[:,0][-1]
 
-        first_data = lcs['ACS'][:,0][0]
-        last_data = lcs['ACS'][:,0][-1]
+        logger.info("loaded %s entries %s - %s", filerev.shape, first_data, last_data)
 
         data_ahead_of_request_center_seconds = (last_data-t0_ijd)*24*3600
         data_ahead_of_request_end_seconds = data_ahead_of_request_center_seconds - window
@@ -71,15 +72,12 @@ def get_realtime_data(ijd, window):
 
         if data_ahead_of_request_end_seconds > window*1.5 + 100:                            
             print("this margin is sufficient")
-            return rt_lc, ""
+            return lc, ""
         else:
-            print("this margin is NOT sufficient")
+            logger.info("this margin is NOT sufficient")
 
             return "", None
-        #    if (now_ijd-last_data)*24*3600>1000:
-        #        raise RuntimeError('margin insufficent, data too old: no more hope')                
-
-            # time.sleep(30)
-            # break
-
     
+    logger.info("no data found for the requested time")
+    return "", None
+        
