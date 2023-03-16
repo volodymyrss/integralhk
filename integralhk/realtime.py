@@ -49,7 +49,7 @@ def get_realtime_data(ijd, window):
         first_data = lc[:,0][0]
         last_data = lc[:,0][-1]
 
-        logger.info("loaded %s entries %s - %s", filerev.shape, first_data, last_data)
+        logger.info("loaded %s entries %s - %s", lc.shape, first_data, last_data)
 
         data_ahead_of_request_center_seconds = (last_data-t0_ijd)*24*3600
         data_ahead_of_request_end_seconds = data_ahead_of_request_center_seconds - window
