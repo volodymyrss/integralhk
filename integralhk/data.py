@@ -3,7 +3,7 @@ from integralhk import spiacs_config, dump_lc, integral, realtime
 from integralhk.exception import GeneratorException, handleall
 from .integral import ijd2utc, x2ijd, time_interval, utc2utc_sec, getphase, ijd2scw
 
-import tempfile
+import logging
 import subprocess
 import os
 import time
@@ -19,8 +19,8 @@ from integralclient import converttime
 import astropy.table as table
 import astropy.io.fits as fits
         
-#advice=advise_time(utc1)+"; "+advise_time(utc2)
 
+logger = logging.getLogger(__name__)
 
 class BadTime(GeneratorException):
     def __init__(self,comment):
@@ -194,9 +194,11 @@ def getrealtime(*a,**b):
         print(("converttime exception:",e))
         raise GeneratorException("converttime exception:"+str(e))
     
-    result, output = realtime.get_realtime_data(ijd, window_s)
+    r = realtime.get_realtime_data(ijd, window_s)
 
-    return result, "none"
+    logger.info("get_realtime_data returns %s", r)
+
+    return r
 
 
 
