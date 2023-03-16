@@ -1,9 +1,7 @@
-from integralhk import spiacs_config
-from integralhk import support
-from integralhk import dump_lc
-from integralhk import integral
+from integralhk import spiacs_config, dump_lc, integral, realtime
 
 from integralhk.exception import GeneratorException, handleall
+from .integral import ijd2utc, x2ijd, time_interval, utc2utc_sec, getphase, ijd2scw
 
 import tempfile
 import subprocess
@@ -29,7 +27,7 @@ class BadTime(GeneratorException):
         self.comment=comment
     
     def __repr__(self):
-        return "BadTime('%s')"%self.comment
+        return f"Bad time: {self.comment}"
 
 
 def translate_exceptions(f):
@@ -40,26 +38,23 @@ def translate_exceptions(f):
             raise GeneratorException("bad time format: "+repr(e))
     return nf
 
-def import_decorate(names,module,decorator):
-    for func in names:
-        globals()[func]=decorator(getattr(module,func))
-
-import_decorate(['ijd2utc','x2ijd','time_interval','utc2utc_sec','getphase','ijd2scw'],integral,translate_exceptions)
 
 def validate_argnum(num,excc,arg):
     def dec(f):
         def nf(*a,**b):
-            if len(a)!=num:
-                print(("bad arguments:",a))
+            if len(a) != num:
+                message = f"wrong number of arguments ({len(a)}), expected {num}. Arguments: {a}"
                 exc=excc(arg)
-                exc.message+="; bad arguments:"+str(a)
+                exc.message+="; " + message
                 raise exc
             return f(*a,**b)
         return nf
     return dec
+
     
 @validate_argnum(3,GeneratorException,"Generic LC needs three arguments")
 @integral.with_both_rbp
+@translate_exceptions
 def getgenlc(*a,**b):
     target,timestr,rangestr=a
 
@@ -100,7 +95,9 @@ def getgenlc(*a,**b):
         print(("dump_lc exception",repr(e)))
         raise GeneratorException("dump lc exceptions:"+repr(e),times=[utc1,utc2])
 
+
 @validate_argnum(2,GeneratorException,"IPN LC needs two arguments")
+@translate_exceptions
 def getipn(*a):
     timestr,rangestr=a
 
@@ -137,6 +134,7 @@ def getipn(*a):
 
 @validate_argnum(1,GeneratorException,"EPHS needs one argument")
 @integral.with_both_rbp
+@translate_exceptions
 def getephs(*a,**b):
     timestr,=a
     rbp=b['rbp']
@@ -184,6 +182,22 @@ def getscw(*a,**b):
         raise GeneratorException("converttime exception:"+str(e))
 
     return scw,"none"
+
+
+@validate_argnum(2, GeneratorException,"realtime needs twos argument, time and window size")
+def getrealtime(*a,**b):
+    timestr, window_s = a
+    
+    try:
+        ijd = x2ijd(timestr, rbp=spiacs_config.isdc_env['isdc_nrt'])
+    except subprocess.CalledProcessError as e:
+        print(("converttime exception:",e))
+        raise GeneratorException("converttime exception:"+str(e))
+    
+    result, output = realtime.get_realtime_data(ijd, window_s)
+
+    return result, "none"
+
 
 
 def validate_time(timestr):

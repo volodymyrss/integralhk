@@ -1,10 +1,14 @@
+import pytest
+
 def test_future():
-    import integralhk.data as d
+    import integralhk.data as d    
 
-    lc = d.getgenlc("ACS", "30000", "30")
+    with pytest.raises(d.GeneratorException) as e:
+        lc = d.getgenlc("ACS", "30000", "30")
+        print(lc[0])
+        assert e
 
-    print(lc[0])
-
+    
 def test_acs():
     import integralhk.data as d
 
@@ -25,3 +29,13 @@ def test_att():
     lc = d.getatt("3000")
 
     print(lc[0])
+
+def test_realtime():
+    import integralhk.data as d
+    from integralhk.realtime import get_realtime_data
+    import time
+
+    lc = d.getrealtime(time.strftime("%Y-%m-%dT%H:%M:%S"), 50)
+
+    print(lc[0])
+

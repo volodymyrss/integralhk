@@ -16,6 +16,7 @@ environment_root=os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 isdc_env=dict(
 isdc_arc=os.environ.get("REP_BASE_PROD_ARC", "/isdc/arc/rev_3"),
 isdc_nrt=os.environ.get("REP_BASE_PROD_NRT","/isdc/pvphase/nrt/ops"),
+isdc_rt=os.environ.get("REP_RT","/data/realtime"),
 #isdc_nrt="/isdc/arc/FTP/arc_distr/NRT/public/",
 isdc_ref_cat="/dev/null",
 isdc_env_root=os.environ['ISDC_ENV']#"/home/savchenk/local/osa/osa_sw-9.0"
@@ -51,8 +52,8 @@ sys.path.append(generators_path)
 sys.path.append(other_path)
 sys.path.append(science_path)
 
-dump_lc_path=software_path+"/spiacs/dump_lc"
-dump_lc_binary=shutil.which("dump_lc")
+dump_lc_path = os.getenv('DUMP_LC_PATH', software_path+"/spiacs/dump_lc")
+dump_lc_binary = os.getenv('DUMP_LC_BINARY', shutil.which("dump_lc"))
 sys.path.append(dump_lc_path)
 
 ################################################3

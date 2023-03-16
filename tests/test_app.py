@@ -15,6 +15,13 @@ def test_genlc(client):
     print(r)
     assert r.status_code == 200
     
+def test_rtlc(client):
+    t0 = time.time()
+    r = client.get(url_for('rtlc', t0=time.strftime("%Y-%m-%dT%H:%M:%S"), dt="30"))
+    print(r.data)
+    print(r)
+    assert r.status_code == 200
+
 
 def test_att(client):
     r=client.get(url_for('att', t0='2019-06-10T11:27:45'))

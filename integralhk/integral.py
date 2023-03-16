@@ -41,8 +41,8 @@ def revol(tstart):
     i=int(t)
     return i
 
-rev1700_start=6034.849157222222
-rev1600_start=5502.690279907407
+rev1700_start = 6034.849157222222
+rev1600_start = 5502.690279907407
 
 def getphase(tstart):
     if tstart<100: return 0.5

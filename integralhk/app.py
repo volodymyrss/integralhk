@@ -38,10 +38,15 @@ def ipnlc(t0, dt):
 
 @app.route('/api/v1.0/genlc/<string:target>/<string:t0>/<string:dt>', methods=['GET'])
 def genlc(target, t0, dt):
-
     d=data.getgenlc(target, t0, dt)
-
     return d[0]
+
+
+@app.route('/api/v1.0/rtlc/<string:t0>/<string:dt>', methods=['GET'])
+def rtlc(t0, dt):
+    d=data.getrealtime(t0, dt)
+    return d[0]
+
 
 @app.route('/api/v1.0/ephs/<string:t0>', methods=['GET'])
 def ephs(t0):
