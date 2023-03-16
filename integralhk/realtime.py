@@ -55,23 +55,23 @@ def get_realtime_data(ijd, window):
         data_ahead_of_request_end_seconds = data_ahead_of_request_center_seconds - window
         data_behind_of_now_seconds = (now_ijd-last_data)*24*3600
 
-        print("now", now_ijd, 
-              "first data in file", first_data, 
-              "last data", last_data, 
-              "requested", t0_ijd, 
-              "data ahead of request center", data_ahead_of_request_center_seconds, "s",
-              "end", data_ahead_of_request_end_seconds, "s",
-              "data behind current moment by", data_behind_of_now_seconds, "s",
-              "window", window)       
+        logger.info(f"now {now_ijd}", 
+                    f"first data in file {first_data}" 
+                    f"last data {last_data}" 
+                    f"requested {t0_ijd}"
+                    f"data ahead of request center {data_ahead_of_request_center_seconds} s"
+                    f"end {data_ahead_of_request_end_seconds} s"
+                    f"data behind current moment by {data_behind_of_now_seconds} s"
+                    f"window {window}")
 
 
         if t0_ijd<first_data:
-            print("data in the previous file")
+            logger.info("data in the previous file")
             continue
             
 
         if data_ahead_of_request_end_seconds > window*1.5 + 100:                            
-            print("this margin is sufficient")
+            logger.info("this margin is sufficient")
             return lc, ""
         else:
             logger.info("this margin is NOT sufficient")
