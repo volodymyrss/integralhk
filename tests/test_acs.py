@@ -35,7 +35,7 @@ def test_realtime():
     # from integralhk.realtime import get_realtime_data
     import time
 
-    lc = d.getrealtime(time.strftime("%Y-%m-%dT%H:%M:%S"), 50)
+    lc = d.getrealtime(time.strftime("%Y-%m-%dT%H:%M:%S"), 10)
 
     print(lc[0])
 

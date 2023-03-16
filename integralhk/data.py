@@ -188,14 +188,16 @@ def getscw(*a,**b):
 @validate_argnum(2, GeneratorException,"realtime needs twos argument, time and window size")
 def getrealtime(*a,**b):
     timestr, window_s = a
+
+    logger.info("getrealtime for timestr=%s window_s=%s", timestr, window_s)
     
     try:
         ijd = x2ijd(timestr, rbp=spiacs_config.isdc_env['isdc_nrt'])
     except subprocess.CalledProcessError as e:
-        print(("converttime exception:",e))
-        raise GeneratorException("converttime exception:"+str(e))
+        logger.warning("converttime exception: %s", e)
+        raise GeneratorException(f"converttime exception: {str(e)}")
     
-    r = realtime.get_realtime_data(ijd, window_s)
+    r = realtime.get_realtime_data(ijd, window_s)[0]
 
     s = StringIO()
     np.savetxt(s, r)

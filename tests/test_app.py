@@ -1,6 +1,8 @@
 import pytest
 import time
+from datetime import datetime
 from flask import url_for
+from astropy.time import Time
 
 
 def test_ipnlc(client):
@@ -16,8 +18,8 @@ def test_genlc(client):
     assert r.status_code == 200
     
 def test_rtlc(client):
-    t0 = time.time()
-    r = client.get(url_for('rtlc', t0=time.strftime("%Y-%m-%dT%H:%M:%S"), dt="30"))
+    t0 = Time(Time.now().unix - 100, format='unix')
+    r = client.get(url_for('rtlc', t0=t0.isot, dt="10"))
     print(r.data)
     print(r)
     assert r.status_code == 200

@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 # TODO: store time lags regularly
 
 def get_realtime_data(ijd, window):
-    logger.info("requested logger for ijd=%s window=%s", ijd, window)
+    logger.info("requested get_realtime_data for ijd=%s window=%s", ijd, window)
     
     realtime_dump_root = spiacs_config.isdc_env['isdc_rt']    
 
@@ -30,6 +30,7 @@ def get_realtime_data(ijd, window):
     window = float(window)
 
     logger.info("now_ijd=%s", now_ijd)
+    logger.info("request behind now by %s s", (now_ijd - t0_ijd)*24*3600)
 
     for rt_fn in reversed(sorted(glob.glob(realtime_dump_root+"/lcdump-revol-*.csv"))): 
         logger.info("trying rt_fn=%s", rt_fn)
@@ -41,7 +42,6 @@ def get_realtime_data(ijd, window):
             continue        
 
         rt_lc = np.genfromtxt(rt_fn)
-        logger.info("filerev=%s", filerev)
 
         lc = rt_lc[:,(3,0,2,0)]
         lc[:,1] = 0.05
@@ -55,6 +55,8 @@ def get_realtime_data(ijd, window):
         data_ahead_of_request_end_seconds = data_ahead_of_request_center_seconds - window
         data_behind_of_now_seconds = (now_ijd-last_data)*24*3600
 
+        # logger.info(f"now {now_ijd}")
+        
         logger.info(f"now {now_ijd} "
                     f"first data in file {first_data} " 
                     f"last data {last_data} " 
@@ -70,7 +72,7 @@ def get_realtime_data(ijd, window):
             continue
             
 
-        if data_ahead_of_request_end_seconds > window*1.5 + 100:                            
+        if data_ahead_of_request_end_seconds > window:
             logger.info("this margin is sufficient")
             return lc, ""
         else:
