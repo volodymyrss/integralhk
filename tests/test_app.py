@@ -20,7 +20,7 @@ def test_genlc(client):
 def test_rtlc(client):
     t0 = Time(Time.now().unix - 100, format='unix')
     r = client.get(url_for('rtlc', t0=t0.isot, dt="10"))
-    print(r.data)
+    print(r.data[:1000])
     print(r)
     assert r.status_code == 200
 
