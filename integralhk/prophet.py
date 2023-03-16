@@ -3,6 +3,7 @@ import os
 import datetime
 import pandas as pd
 from io import StringIO
+from .spiacs_config import isdc_env
 
 def gt(dt_str):
     dt, _, us= dt_str.partition(".")
@@ -16,13 +17,10 @@ def gt(dt_str):
         dt += datetime.timedelta(microseconds=us)
     return dt
 
-arc_root_prefix="/mnt/sshfs/isdc"
-
 def read_tsf(rev, debug=False):
 
-    patt=arc_root_prefix+"/isdc/pvphase/nrt/ops/aux/org/%.4i/TSF_*.INT"%rev
+    patt = isdc_env['isdc_nrt'] + "/aux/org/%.4i/TSF_*.INT"%rev
 
-    print("arcroot prefix:", arc_root_prefix)
     print("patt", patt)
         
     if debug:
