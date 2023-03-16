@@ -32,7 +32,7 @@ def test_att():
 
 def test_realtime():
     import integralhk.data as d
-    from integralhk.realtime import get_realtime_data
+    # from integralhk.realtime import get_realtime_data
     import time
 
     lc = d.getrealtime(time.strftime("%Y-%m-%dT%H:%M:%S"), 50)

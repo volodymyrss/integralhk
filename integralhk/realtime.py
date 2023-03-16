@@ -1,0 +1,76 @@
+import re
+import glob
+import time
+import logging
+
+import numpy as np
+from astropy.time import Time
+
+from . import spiacs_config, integral
+
+
+logger = logging.getLogger(__name__)
+
+# TODO: store time lags regularly
+
+def get_realtime_data(ijd, window):
+    logger.info("requested logger for ijd=%s window=%s", ijd, window)
+    
+    realtime_dump_root = spiacs_config.isdc_env['isdc_rt']    
+    
+    scw = integral.ijd2scw(ijd, rbp=spiacs_config.isdc_env['isdc_nrt'])
+    current_rev = int(scw[:4])
+
+    now_ijd = Time.now().mjd - 51544 + 69.20/24/3600
+    t0_ijd = ijd
+    window = float(window)
+
+    lcs = {}
+
+    for rt_fn in reversed(sorted([
+                    l for l in glob.glob(realtime_dump_root+"/lcdump-revol-*.csv") 
+                    if float(re.search(r"lcdump-revol-(\d{4}).*.csv",l).groups()[0])<=current_rev+1])):
+
+        print(rt_fn)
+
+        rt_lc = np.genfromtxt(rt_fn)
+
+        lcs['ACS']=rt_lc[:,(3,0,2,0)]
+        lcs['ACS'][:,1] = 0.05
+
+        first_data = lcs['ACS'][:,0][0]
+        last_data = lcs['ACS'][:,0][-1]
+
+        data_ahead_of_request_center_seconds = (last_data-t0_ijd)*24*3600
+        data_ahead_of_request_end_seconds = data_ahead_of_request_center_seconds - window
+        data_behind_of_now_seconds = (now_ijd-last_data)*24*3600
+
+        print("now", now_ijd, 
+              "first data in file", first_data, 
+              "last data", last_data, 
+              "requested", t0_ijd, 
+              "data ahead of request center", data_ahead_of_request_center_seconds, "s",
+              "end", data_ahead_of_request_end_seconds, "s",
+              "data behind current moment by", data_behind_of_now_seconds, "s",
+              "window", window)       
+
+
+        if t0_ijd<first_data:
+            print("data in the previous file")
+            continue
+            
+
+        if data_ahead_of_request_end_seconds > window*1.5 + 100:                            
+            print("this margin is sufficient")
+            return rt_lc, ""
+        else:
+            print("this margin is NOT sufficient")
+
+            return "", None
+        #    if (now_ijd-last_data)*24*3600>1000:
+        #        raise RuntimeError('margin insufficent, data too old: no more hope')                
+
+            # time.sleep(30)
+            # break
+
+    
