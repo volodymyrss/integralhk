@@ -55,13 +55,13 @@ def get_realtime_data(ijd, window):
         data_ahead_of_request_end_seconds = data_ahead_of_request_center_seconds - window
         data_behind_of_now_seconds = (now_ijd-last_data)*24*3600
 
-        logger.info(f"now {now_ijd}", 
-                    f"first data in file {first_data}" 
-                    f"last data {last_data}" 
-                    f"requested {t0_ijd}"
-                    f"data ahead of request center {data_ahead_of_request_center_seconds} s"
-                    f"end {data_ahead_of_request_end_seconds} s"
-                    f"data behind current moment by {data_behind_of_now_seconds} s"
+        logger.info(f"now {now_ijd} "
+                    f"first data in file {first_data} " 
+                    f"last data {last_data} " 
+                    f"requested {t0_ijd} "
+                    f"data ahead of request center {data_ahead_of_request_center_seconds} s "
+                    f"end {data_ahead_of_request_end_seconds} s "
+                    f"data behind current moment by {data_behind_of_now_seconds} s "
                     f"window {window}")
 
 
