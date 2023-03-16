@@ -79,8 +79,8 @@ def get_realtime_data(ijd, window):
         else:
             logger.info("this margin is NOT sufficient")
 
-            return "", None
+            return np.array([]), "no data found for the requested time, possibly only so far"
     
     logger.info("no data found for the requested time")
-    return "", None
+    return np.array([]), "no data found for the requested time"
         

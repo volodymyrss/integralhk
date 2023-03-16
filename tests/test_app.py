@@ -25,6 +25,15 @@ def test_rtlc(client):
     assert r.status_code == 200
 
 
+def test_rtlc_future(client):
+    t0 = Time(Time.now().unix + 1000, format='unix')
+    r = client.get(url_for('rtlc', t0=t0.isot, dt="10"))
+    print(r.data[:1000])
+    print(r)
+    assert r.status_code == 200
+
+
+
 def test_att(client):
     r=client.get(url_for('att', t0='2019-06-10T11:27:45'))
     print(r)
