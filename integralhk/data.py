@@ -197,14 +197,13 @@ def getrealtime(*a,**b):
         logger.warning("converttime exception: %s", e)
         raise GeneratorException(f"converttime exception: {str(e)}")
     
-    r = realtime.get_realtime_data(ijd, window_s)[0]
+    r, output = realtime.get_realtime_data(ijd, window_s)
+    logger.info("get_realtime_data returns %s", r)
 
     s = StringIO()
     np.savetxt(s, r)
-
-    logger.info("get_realtime_data returns %s", r)
-
-    return s.getvalue()
+    
+    return s.getvalue(), output
 
 
 

@@ -66,12 +66,10 @@ def get_realtime_data(ijd, window):
                     f"data behind current moment by {data_behind_of_now_seconds} s "
                     f"window {window}")
 
-
         if t0_ijd<first_data:
             logger.info("data in the previous file")
             continue
             
-
         if data_ahead_of_request_end_seconds > window:
             logger.info("this margin is sufficient")
             return lc, ""
