@@ -17,13 +17,19 @@ def get_realtime_data(ijd, window):
     logger.info("requested logger for ijd=%s window=%s", ijd, window)
     
     realtime_dump_root = spiacs_config.isdc_env['isdc_rt']    
-    
+
+    logger.info("realtime_dump_root=%s", realtime_dump_root)
+
     scw = integral.ijd2scw(ijd, rbp=spiacs_config.isdc_env['isdc_nrt'])
     current_rev = int(scw[:4])
+
+    logger.info("current_rev=%s", current_rev)
 
     now_ijd = Time.now().mjd - 51544 + 69.20/24/3600
     t0_ijd = ijd
     window = float(window)
+
+    logger.info("now_ijd=%s", now_ijd)
 
     lcs = {}
 
@@ -31,7 +37,7 @@ def get_realtime_data(ijd, window):
                     l for l in glob.glob(realtime_dump_root+"/lcdump-revol-*.csv") 
                     if float(re.search(r"lcdump-revol-(\d{4}).*.csv",l).groups()[0])<=current_rev+1])):
 
-        print(rt_fn)
+        logger.info("trying rt_fn=%s", rt_fn)
 
         rt_lc = np.genfromtxt(rt_fn)
 
