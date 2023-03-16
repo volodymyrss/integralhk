@@ -1,3 +1,4 @@
+from io import StringIO
 from integralhk import spiacs_config, dump_lc, integral, realtime
 
 from integralhk.exception import GeneratorException, handleall
@@ -196,9 +197,12 @@ def getrealtime(*a,**b):
     
     r = realtime.get_realtime_data(ijd, window_s)
 
+    s = StringIO()
+    np.savetxt(s, r)
+
     logger.info("get_realtime_data returns %s", r)
 
-    return r
+    return s.getvalue()
 
 
 
