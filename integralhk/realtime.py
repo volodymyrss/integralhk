@@ -1,3 +1,4 @@
+import os
 import re
 import glob
 import time
@@ -33,7 +34,7 @@ def get_realtime_data(ijd, window):
     logger.info("now_ijd=%s", now_ijd)
     logger.info("request behind now by %s s", (now_ijd - t0_ijd)*24*3600)
 
-    for rt_fn in reversed(sorted(glob.glob(realtime_dump_root+"/lcdump-revol-*.csv"))): 
+    for rt_fn in reversed(sorted(glob.glob(realtime_dump_root+"/lcdump-revol-*.csv"), key=lambda x: os.path.getmtime(x))): 
         logger.info("trying rt_fn=%s", rt_fn)
         filerev = int(re.search(r"lcdump-revol-(\d{4}).*.csv", rt_fn).groups()[0])
         logger.info("filerev=%s", filerev)
