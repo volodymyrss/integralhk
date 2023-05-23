@@ -66,7 +66,15 @@ def rtlc(t0, dt):
 
 @app.route('/api/v1.0/ephs/<string:t0>', methods=['GET'])
 def ephs(t0):
-    d=data.getephs(t0)
+    d = data.getephs(t0)
+    prediction = prophet.predict(time=t0)
+    # TODO: check
+    return "ok", 200
+
+
+@app.route('/api/v1.0/status/<string:t0>', methods=['GET'])
+def status(t0):
+    d = data.getrealtime(t0, 1, json=True)[0].to_dict('tight')
 
     return d[0]
 
