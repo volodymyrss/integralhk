@@ -73,7 +73,8 @@ def ephs(t0):
     d = data.getephs(t0)
     prediction = prophet.predict(time=t0)
     # TODO: check
-    return "ok", 200
+    #return "ok", 200
+    return d[0]
 
 
 @app.route('/api/v1.0/status/<string:t0>', methods=['GET'])
