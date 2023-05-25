@@ -50,7 +50,11 @@ def rtlc(t0, dt):
     logger.info('requested rtlc with t0=%s dt=%s return_json=%s', t0, dt, return_json)
 
     if return_json:        
-        d = data.getrealtime(t0, dt, json=True)[0].to_dict('tight')
+        try:
+            d = data.getrealtime(t0, dt, json=True)[0].to_dict('tight')
+        except Exception as e:
+            logger.info('no realtime data accessible')
+            d = []
 
         if 'prophecy' in request.args:
             logger.info('requested prophecy')

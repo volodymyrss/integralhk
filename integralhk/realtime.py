@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 # TODO: store time lags regularly
 
-def get_realtime_data(ijd, window):
+def get_realtime_data(ijd, window, allow_incomplete=False):
     logger.info("requested get_realtime_data for ijd=%s window=%s", ijd, window)
     
     realtime_dump_root = spiacs_config.isdc_env['isdc_rt']    
