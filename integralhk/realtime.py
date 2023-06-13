@@ -40,7 +40,7 @@ def get_realtime_data(ijd, window, allow_incomplete=False):
         logger.info("filerev=%s", filerev)
 
         if filerev > current_rev + 1:
-            logger.info("this is in the future, skipping rt_fn=%s", rt_fn)
+            logger.info("filerev=%s is in the future comparing to current rev %s, skipping rt_fn=%s", filerev, current_rev, rt_fn)
             continue        
 
         lc = pd.read_csv(rt_fn, delim_whitespace=True, usecols=[2, 3], names=["counts", "ijd"])
