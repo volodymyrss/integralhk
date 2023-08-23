@@ -31,6 +31,35 @@ from integralhk.exception import GeneratorException
 def handle_generator_exception(e):
     return e.message, 400
 
+
+@app.route('/api/v1.0/rthealth', methods=['GET'])
+def rthealth(t0, dt):
+    prophecy = prophet.predict(time=t0)
+
+    try:
+        lcdata = data.getrealtime(t0, dt, json=True)[0].to_dict('tight')['data']
+    except Exception as e:
+        logger.info('no realtime data accessible: %s', e)
+        lcdata = []
+
+    have_data = len(lcdata) > 1
+    
+    if prophecy[1]['expected_data_status'] == 'ONLINE':
+        logger.info('prophecy says data will be online')    
+        if not have_data:
+            logger.info('but we have no data')
+            return jsonify({'status': 'NOK',
+                            'reason': f'no data (lcdata={lcdata}) while we expect some: {prophecy}'}), 400
+        else:
+            logger.info('and we have data')
+    else:
+        logger.info('prophecy says data will not be online')        
+        
+    return jsonify({'status': 'OK', 'prophecy': prophecy, 'lcdata_len': len(lcdata)}), 200
+
+    
+
+
 @app.route('/api/v1.0/ipnlc/<string:t0>/<string:dt>', methods=['GET'])
 def ipnlc(t0, dt):
 
