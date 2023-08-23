@@ -12,7 +12,8 @@ import re
 import logging
 import socket
 
-import time 
+import time
+from datetime import datetime, timezone
 
 import numpy as np
 
@@ -33,7 +34,13 @@ def handle_generator_exception(e):
 
 
 @app.route('/api/v1.0/rthealth', methods=['GET'])
-def rthealth(t0, dt):
+def rthealth():
+    dt = float(request.args.get('dt', 10))
+
+    t0_recently = datetime.fromtimestamp(time.time() - dt - 50, timezone.utc).strftime('%Y-%m-%dT%H:%M:%S')
+
+    t0 = request.args.get('t0', t0_recently)
+    
     prophecy = prophet.predict(time=t0)
 
     try:
