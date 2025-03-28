@@ -50,7 +50,11 @@ def rtlc(t0, dt):
     logger.info('requested rtlc with t0=%s dt=%s return_json=%s', t0, dt, return_json)
 
     if return_json:        
-        d = data.getrealtime(t0, dt, json=True)[0].to_dict('tight')
+        try:
+            d = data.getrealtime(t0, dt, json=True)[0].to_dict('tight')
+        except Exception as e:
+            logger.info('no realtime data accessible: %s', e)
+            d = {'data': []}
 
         if 'prophecy' in request.args:
             logger.info('requested prophecy')
@@ -69,7 +73,8 @@ def ephs(t0):
     d = data.getephs(t0)
     #prediction = prophet.predict(time=t0)
     # TODO: check
-    return "ok", 200
+    #return "ok", 200
+    return d[0]
 
 
 @app.route('/api/v1.0/status/<string:t0>', methods=['GET'])

@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 # TODO: store time lags regularly
 
-def get_realtime_data(ijd, window):
+def get_realtime_data(ijd, window, allow_incomplete=False):
     logger.info("requested get_realtime_data for ijd=%s window=%s", ijd, window)
     
     realtime_dump_root = spiacs_config.isdc_env['isdc_rt']    
@@ -40,7 +40,7 @@ def get_realtime_data(ijd, window):
         logger.info("filerev=%s", filerev)
 
         if filerev > current_rev + 1:
-            logger.info("this is in the future, skipping rt_fn=%s", rt_fn)
+            logger.info("filerev=%s is in the future comparing to current rev %s, skipping rt_fn=%s", filerev, current_rev, rt_fn)
             continue        
 
         lc = pd.read_csv(rt_fn, delim_whitespace=True, usecols=[2, 3], names=["counts", "ijd"])
