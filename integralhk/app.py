@@ -107,7 +107,7 @@ def rtlc(t0, dt):
 @app.route('/api/v1.0/ephs/<string:t0>', methods=['GET'])
 def ephs(t0):
     d = data.getephs(t0)
-    prediction = prophet.predict(time=t0)
+    #prediction = prophet.predict(time=t0)
     # TODO: check
     #return "ok", 200
     return d[0]
